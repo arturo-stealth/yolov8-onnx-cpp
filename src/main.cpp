@@ -43,6 +43,7 @@ int main()
     std::cerr << "Error: Unable to load image" << std::endl;
     return 1;
   }
+
   yolov8_onnxruntime::AutoBackendOnnx model(modelPath.c_str(), onnx_logid.c_str(), onnx_provider);
   std::vector<yolov8_onnxruntime::YoloResults> objs =
       model.predict_once(img, conf_threshold, iou_threshold, mask_threshold, conversion_code);

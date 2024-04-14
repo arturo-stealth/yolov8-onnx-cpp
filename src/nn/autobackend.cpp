@@ -163,26 +163,6 @@ void AutoBackendOnnx::prettyPrintMetaData()
   }
 }
 
-const std::vector<int>& AutoBackendOnnx::getImgsz() { return imgsz_; }
-
-const int& AutoBackendOnnx::getHeight() { return imgsz_[0]; }
-
-const int& AutoBackendOnnx::getWidth() { return imgsz_[1]; }
-
-const int& AutoBackendOnnx::getStride() { return stride_; }
-
-const int& AutoBackendOnnx::getCh() { return ch_; }
-
-const int& AutoBackendOnnx::getNc() { return nc_; }
-
-const std::unordered_map<int, std::string>& AutoBackendOnnx::getNames() { return names_; }
-
-const cv::Size& AutoBackendOnnx::getCvSize() { return cvSize_; }
-
-const std::vector<int64_t>& AutoBackendOnnx::getInputTensorShape() { return inputTensorShape_; }
-
-const std::string& AutoBackendOnnx::getTask() { return task_; }
-
 std::vector<YoloResults> AutoBackendOnnx::predict_once(const std::string& imagePath,
                                                        float& conf,
                                                        float& iou,

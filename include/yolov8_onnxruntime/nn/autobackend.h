@@ -7,6 +7,7 @@
 
 #include "yolov8_onnxruntime/constants.h"
 #include "yolov8_onnxruntime/nn/onnx_model_base.h"
+#include "yolov8_onnxruntime/utils/common.h"
 
 #include "yolov8_onnxruntime/types.h"
 
@@ -30,16 +31,16 @@ public:
   AutoBackendOnnx(const char* modelPath, const char* logid, const OnnxProviders_t provider);
 
   // getters
-  virtual const std::vector<int>& getImgsz();
-  virtual const int& getStride();
-  virtual const int& getCh();
-  virtual const int& getNc();
-  virtual const std::unordered_map<int, std::string>& getNames();
-  virtual const std::vector<int64_t>& getInputTensorShape();
-  virtual const int& getWidth();
-  virtual const int& getHeight();
-  virtual const cv::Size& getCvSize();
-  virtual const std::string& getTask();
+  std::vector<int> getImgsz() const { return imgsz_; }
+  int getStride() const { return stride_; }
+  int getCh() const { return ch_; }
+  int getNc() const { return nc_; }
+  const std::unordered_map<int, std::string>& getNames() const { return names_; }
+  const std::vector<int64_t>& getInputTensorShape() const { return inputTensorShape_; }
+  int getWidth() const { return imgsz_[1]; }
+  int getHeight() const { return imgsz_[0]; }
+  cv::Size getCvSize() const { return cvSize_; }
+  std::string getTask() const { return task_; }
 
   int getClassIdx(const std::string& className) const
   {
