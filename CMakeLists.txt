@@ -9,6 +9,11 @@ ENDIF()
 
 SET(ONNXRUNTIME_DIR /opt/onnxruntime)  # onnxruntime root
 
+# make sure this dir exists
+IF(NOT EXISTS ${ONNXRUNTIME_DIR})
+  MESSAGE(FATAL_ERROR "ONNXRUNTIME_DIR not found")
+ENDIF()
+
 find_package(OpenCV REQUIRED)
 
 SET(CMAKE_CXX_STANDARD 17)
