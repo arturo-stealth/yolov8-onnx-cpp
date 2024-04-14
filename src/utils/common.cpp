@@ -146,12 +146,7 @@ std::unordered_map<int, std::string> parseNames(const std::string& input)
       int key = std::stoi(keyStr);
       // remove leading and trailing whitespaces and single quotes
       value.erase(std::remove(value.begin(), value.end(), '\''), value.end());
-      // remove whitespace
       value.erase(std::remove(value.begin(), value.end(), ' '), value.end());
-
-      std::cout << "value: {" << value << "}" << std::endl;
-
-
       result[key] = value;
     }
   }

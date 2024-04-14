@@ -22,12 +22,12 @@ int main()
   const std::string& modelPath =
       "../models/trailer_opening_segmentation_v1_yolo8n-seg.onnx"; // pose
 
-  std::filesystem::path imageFilePath(img_path);
-  std::filesystem::path newFilePath = imageFilePath.stem();
-  newFilePath += "-kpt-cpp";
-  newFilePath += imageFilePath.extension();
-  assert(newFilePath != imageFilePath);
-  std::cout << "newFilePath: " << newFilePath << std::endl;
+  // std::filesystem::path imageFilePath(img_path);
+  // std::filesystem::path newFilePath = imageFilePath.stem();
+  // newFilePath += "-kpt-cpp";
+  // newFilePath += imageFilePath.extension();
+  // assert(newFilePath != imageFilePath);
+  // std::cout << "newFilePath: " << newFilePath << std::endl;
 
   const auto onnx_provider = yolov8_onnxruntime::OnnxProviders_t::CPU; // "cpu";
   const std::string& onnx_logid = "yolov8_inference2";

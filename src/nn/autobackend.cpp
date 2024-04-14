@@ -92,16 +92,9 @@ void AutoBackendOnnx::loadMetaData()
   {
     // parse it and convert to int iterable
     std::unordered_map<int, std::string> names = parseNames(names_item->second);
-    std::cout << "***Names from metadata***" << std::endl;
-    for (const auto& pair : names)
-    {
-      std::cout << "Key: " << pair.first << ", Value: " << pair.second << std::endl;
-    }
     // set it here:
     if (names_.empty())
-    {
-      names_ = names;
-    }
+      names_ = std::move(names);
   }
   else
   {
@@ -157,21 +150,16 @@ void AutoBackendOnnx::loadMetaData()
 
 void AutoBackendOnnx::prettyPrintMetaData()
 {
-  std::cout << "***Metadata***" << std::endl;
-  std::cout << "imgsz: ";
-  for (const int& val : imgsz_)
-  {
-    std::cout << val << " ";
-  }
-  std::cout << std::endl;
-  std::cout << "stride: " << stride_ << std::endl;
-  std::cout << "nc: " << nc_ << std::endl;
-  std::cout << "ch: " << ch_ << std::endl;
-  std::cout << "task: " << task_ << std::endl;
-  std::cout << "names: " << std::endl;
+  std::cout << "*** Metadata from Model ***" << std::endl;
+  std::cout << "  imgsz: " << imgsz_[0] << "x" << imgsz_[1] << std::endl;
+  std::cout << "  stride: " << stride_ << std::endl;
+  std::cout << "  nc: " << nc_ << std::endl;
+  std::cout << "  ch: " << ch_ << std::endl;
+  std::cout << "  task: " << task_ << std::endl;
+  std::cout << "  names: " << std::endl;
   for (const auto& pair : names_)
   {
-    std::cout << "Key: " << pair.first << ", Value: " << pair.second << std::endl;
+    std::cout << "    Key: " << pair.first << ", Value: " << pair.second << std::endl;
   }
 }
 
