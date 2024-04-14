@@ -14,6 +14,8 @@ void letterbox(const cv::Mat& image,
                bool scaleUp = true,
                int stride = 32);
 
+cv::Mat centercrop(const cv::Mat& img, const cv::Size& targetSize);
+
 cv::Mat scale_image(const cv::Mat& resized_mask,
                     const cv::Size& im0_shape,
                     const std::pair<float, cv::Point2f>& ratio_pad =

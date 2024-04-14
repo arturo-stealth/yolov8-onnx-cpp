@@ -74,6 +74,31 @@ void letterbox(const cv::Mat& image,
   cv::copyMakeBorder(outImage, outImage, top, bottom, left, right, cv::BORDER_CONSTANT, color);
 }
 
+cv::Mat centercrop(const cv::Mat& img, const cv::Size& targetSize)
+{
+  int h = img.rows;
+  int w = img.cols;
+  int m = std::min(h, w); // Get the size of the largest possible square
+
+  int top = (h - m) / 2;
+  int left = (w - m) / 2;
+
+  cv::Rect centerRegion(left, top, m, m); // Define the square region in the center
+  cv::Mat cropped = img(centerRegion);    // Crop the center region
+
+  cv::Mat resized;
+  if (targetSize != cropped.size())
+  {
+    cv::resize(cropped, resized, targetSize); // Resize to the desired dimensions
+  }
+  else
+  {
+    resized = cropped; // No resizing needed if it's already the correct size
+  }
+
+  return resized;
+}
+
 cv::Mat scale_image(const cv::Mat& resized_mask,
                     const cv::Size& im0_shape,
                     const std::pair<float, cv::Point2f>& ratio_pad)

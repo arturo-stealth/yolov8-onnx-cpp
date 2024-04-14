@@ -94,6 +94,12 @@ public:
                                                      std::vector<int64_t>& inputTensorShape,
                                                      int conversionCode,
                                                      Timer& timer);
+  std::pair<cv::Size, std::vector<float>>
+  preprocess_classify(cv::Mat& image,
+                      float*& blob,
+                      std::vector<int64_t>& inputTensorShape,
+                      int conversionCode,
+                      Timer& timer);
 
   virtual void fill_blob(cv::Mat& image, float*& blob, std::vector<int64_t>& inputTensorShape);
   virtual void postprocess_masks(cv::Mat& output0,
@@ -122,6 +128,9 @@ public:
                                 int& class_names_num,
                                 float& conf_threshold,
                                 float& iou_threshold);
+
+  void postprocess_classify(cv::Mat& outputTensor, std::vector<YoloResults>& results);
+
   static void _get_mask2(const cv::Mat& mask_info,
                          const cv::Mat& mask_data,
                          const ImageInfo& image_info,

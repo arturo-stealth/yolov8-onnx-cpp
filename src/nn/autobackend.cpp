@@ -240,11 +240,9 @@ std::vector<YoloResults> AutoBackendOnnx::predict_once(cv::Mat& image,
   if (task_ != YoloTasks::CLASSIFY)
     std::tie(pp_sz, inputTensorValues) =
         preprocess(image, blob, inputTensorShape, conversionCode, preprocess_timer);
-
-  // TODO: implement preprocess_classify
-  // else
-  //   std::tie(pp_sz, inputTensorValues) =
-  //       preprocess_classify(image, blob, inputTensorShape, conversionCode, preprocess_timer);
+  else
+    std::tie(pp_sz, inputTensorValues) =
+        preprocess_classify(image, blob, inputTensorShape, conversionCode, preprocess_timer);
 
   Ort::MemoryInfo memoryInfo = Ort::MemoryInfo::CreateCpu(OrtAllocatorType::OrtArenaAllocator,
                                                           OrtMemType::OrtMemTypeDefault);
@@ -329,6 +327,19 @@ std::vector<YoloResults> AutoBackendOnnx::predict_once(cv::Mat& image,
                           .t(); // [bs, features, preds_num]=>[bs, preds_num, features]
     postprocess_kpts(output0, image_info, results, class_names_num, conf, iou);
   }
+  else if (task_ == YoloTasks::CLASSIFY)
+  {
+    ImageInfo image_info = {image.size()};
+    std::vector<int64_t> outputTensor0Shape =
+        outputTensors[0].GetTensorTypeAndShapeInfo().GetShape();
+
+    float* all_data0 = outputTensors[0].GetTensorMutableData<float>();
+    // As outputTensor shape is [1, num_classes], create a Mat of this shape
+    cv::Mat output0 = cv::Mat(1, (int)outputTensor0Shape[1], CV_32F, all_data0);
+
+    // Call to process classification results
+    postprocess_classify(output0, results);
+  }
   else
   {
     throw std::runtime_error("NotImplementedError: task: " + task_);
@@ -369,6 +380,31 @@ AutoBackendOnnx::preprocess(cv::Mat& image,
   const bool scaleFill = false; // false
   const bool auto_ = false;     // false
   letterbox(image, preprocessed_img, new_shape, cv::Scalar(), auto_, scaleFill, true, getStride());
+
+  fill_blob(preprocessed_img, blob, inputTensorShape);
+  int64_t inputTensorSize = vector_product(inputTensorShape);
+  std::vector<float> inputTensorValues(blob, blob + inputTensorSize);
+
+  timer.Stop(); // Stop the preprocessing timer after all operations are done
+
+  return {preprocessed_img.size(), inputTensorValues};
+}
+
+std::pair<cv::Size, std::vector<float>>
+AutoBackendOnnx::preprocess_classify(cv::Mat& image,
+                                     float*& blob,
+                                     std::vector<int64_t>& inputTensorShape,
+                                     int conversionCode,
+                                     Timer& timer)
+{
+  if (conversionCode >= 0)
+  {
+    cv::cvtColor(image, image, conversionCode);
+  }
+
+  cv::Mat preprocessed_img;
+  cv::Size new_shape = cv::Size(getWidth(), getHeight());
+  preprocessed_img = centercrop(image, new_shape);
 
   fill_blob(preprocessed_img, blob, inputTensorShape);
   int64_t inputTensorSize = vector_product(inputTensorShape);
@@ -554,6 +590,28 @@ void AutoBackendOnnx::postprocess_kpts(cv::Mat& output0,
     std::vector<float> kpt = scale_coords(img1_shape, rest[i], image_info.raw_size);
     YoloResults tmp_res = {class_ids[i], confidences[i], scaled_bbox, {}, kpt};
     output.push_back(tmp_res);
+  }
+}
+
+void AutoBackendOnnx::postprocess_classify(cv::Mat& outputTensor, std::vector<YoloResults>& results)
+{
+  results.clear(); // Clear any existing results
+
+  // The outputTensor is expected to be of shape [1, num_classes]
+  CV_Assert(outputTensor.rows == 1); // Ensure it's a single row
+
+  float* data = reinterpret_cast<float*>(outputTensor.data);
+  for (int i = 0; i < outputTensor.cols; ++i)
+  {
+    float confidence = data[i];
+    // You might want to apply a confidence threshold here
+    if (confidence > 0.5) // Example threshold
+    {
+      YoloResults result;
+      result.class_idx = i;
+      result.conf = confidence;
+      results.push_back(result);
+    }
   }
 }
 

@@ -15,19 +15,7 @@
 int main()
 {
   std::string img_path = "../images/trailer.jpg";
-  // const std::img_path& modelPath = "./checkpoints/yolov8n.onnx"; // detection
-  // vs:
-  //    const std::string& modelPath = "./checkpoints/yolov8n-seg.onnx"; // instance segmentation
-  // clion:
-  const std::string& modelPath =
-      "../models/trailer_opening_segmentation_v1_yolo8n-seg.onnx"; // pose
-
-  // std::filesystem::path imageFilePath(img_path);
-  // std::filesystem::path newFilePath = imageFilePath.stem();
-  // newFilePath += "-kpt-cpp";
-  // newFilePath += imageFilePath.extension();
-  // assert(newFilePath != imageFilePath);
-  // std::cout << "newFilePath: " << newFilePath << std::endl;
+  const std::string& modelPath = "../models/trailer-cls.onnx";
 
   const auto onnx_provider = yolov8_onnxruntime::OnnxProviders_t::CPU; // "cpu";
   const std::string& onnx_logid = "yolov8_inference2";
@@ -51,27 +39,36 @@ int main()
       yolov8_onnxruntime::generateRandomColors(model.getNc(), model.getCh());
   std::unordered_map<int, std::string> names = model.getNames();
 
+  // print classify results
+  for (const yolov8_onnxruntime::YoloResults& result : objs)
+  {
+    // set precision 2
+    std::cout << std::fixed << std::setprecision(2);
+    std::cout << "Class: " << names[result.class_idx] << " Confidence: " << result.conf
+              << std::endl;
+  }
+
   // std::vector<std::vector<float>> keypointsVector;
   // for (const yolov8_onnxruntime::YoloResults& result : objs)
   // {
   //   keypointsVector.push_back(result.keypoints);
   // }
 
-  cv::cvtColor(img, img, cv::COLOR_RGB2BGR);
-  // cv::Size show_shape = img.size(); // cv::Size(1280, 720); // img.size()
-  //                                   //   plot_results(img, objs, colors, names, show_shape);
+  // cv::cvtColor(img, img, cv::COLOR_RGB2BGR);
+  // // cv::Size show_shape = img.size(); // cv::Size(1280, 720); // img.size()
+  // //                                   //   plot_results(img, objs, colors, names, show_shape);
 
-  cv::Mat img2_rg = img.clone();
-  plot_masks(img, objs, colors, names);
-  int index = model.getClassIdx("trailer_open");
-  if (index == -1)
-  {
-    std::cerr << "Error: Class name not found in the map" << std::endl;
-    return -1;
-  }
-  plot_masks_rg(img2_rg, objs, index, 1.0);
-  cv::imshow("img", img);
-  cv::imshow("img2_rg", img2_rg);
-  cv::waitKey();
+  // cv::Mat img2_rg = img.clone();
+  // plot_masks(img, objs, colors, names);
+  // int index = model.getClassIdx("trailer_open");
+  // if (index == -1)
+  // {
+  //   std::cerr << "Error: Class name not found in the map" << std::endl;
+  //   return -1;
+  // }
+  // plot_masks_rg(img2_rg, objs, index, 1.0);
+  // cv::imshow("img", img);
+  // cv::imshow("img2_rg", img2_rg);
+  // cv::waitKey();
   return -1;
 }

@@ -1,6 +1,11 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.0.0)
 project(yolov8_onnxruntime)
-add_compile_options(-std=c++17 -O3 -Wall -pedantic -Wextra)
+add_compile_options(-std=c++17)
+
+# set build type
+IF(NOT CMAKE_BUILD_TYPE)
+  SET(CMAKE_BUILD_TYPE Release)
+ENDIF()
 
 SET(ONNXRUNTIME_DIR /opt/onnxruntime)  # onnxruntime root
 
@@ -8,7 +13,6 @@ find_package(OpenCV REQUIRED)
 
 SET(CMAKE_CXX_STANDARD 17)
 SET(CMAKE_CXX_STANDARD_REQUIRED ON)
-add_compile_options(-std=c++17 -O3)
 
 include_directories(
   include
