@@ -29,9 +29,7 @@
 	"remoteUser": "${localEnv:USERNAME}",
 	"mounts": [
 		"source=/dev/,target=/dev/,type=bind",
-		"source=/tmp/.X11-unix/,target=/tmp/.X11-unix/,type=bind",
-		"source=/home/${localEnv:USERNAME}/.ssh,target=/home/${localEnv:USERNAME}/.ssh,type=bind",
-		"source=/home/${localEnv:USERNAME}/.aws/,target=/home/${localEnv:USERNAME}/.aws/,type=bind"
+		"source=/tmp/.X11-unix/,target=/tmp/.X11-unix/,type=bind"
 	],
 	"otherPortsAttributes": { "onAutoForward" : "ignore" },
 	"customizations": {

@@ -69,22 +69,15 @@ clang-format-12 \
 RUN curl \
 L https://raw.githubusercontent.com/docker/compose/v2.7.0/contrib/completion/bash/docker-compose \
 -o /etc/bash_completion.d/docker-compose
-
-
-
 ARG USERNAME=vscode
 
 RUN useradd -rm -d /home/${USERNAME} -s /bin/bash -g root -G sudo -u 1000 ${USERNAME}
-RUN echo "${USERNAME}:slip" | chpasswd
+RUN echo "${USERNAME}:onnx" | chpasswd
 USER ${USERNAME}
 WORKDIR /home/${USERNAME}
 
-RUN mkdir -p /home/${USERNAME}/rapid-docker
+RUN mkdir -p /home/${USERNAME}/yolov8-onnx-cpp
 
 RUN echo 'source /usr/share/bash-completion/completions/git' >> /home/${USERNAME}/.bashrc
-
-RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
-    unzip awscliv2.zip && \
-    echo "slip" | sudo -S ./aws/install
 
 ENV NVIDIA_DRIVER_CAPABILITIES graphics,utility,compute

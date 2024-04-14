@@ -52,7 +52,7 @@ OnnxModelBase::OnnxModelBase(const char* modelPath,
   OrtOpenVINOProviderOptions openvinoOption;
   openvinoOption.device_type = "GPU_FP32";
   openvinoOption.num_of_threads = std::thread::hardware_concurrency() - 1;
-  openvinoOption.cache_dir = "/persisted_data/openvino_cache";
+  openvinoOption.cache_dir = "/tmp/openvino_cache";
 
   if (provider == OnnxProviders_t::CUDA)
   { // strcmp(provider, OnnxProviders::CUDA.c_str()) == true strcmp(provider, "cuda") //
