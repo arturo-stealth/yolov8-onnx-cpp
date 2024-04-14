@@ -9,6 +9,9 @@ ENDIF()
 
 SET(ONNXRUNTIME_DIR /opt/onnxruntime)  # onnxruntime root
 
+# findpackage openvino
+find_package(InferenceEngine REQUIRED)
+
 # make sure this dir exists
 IF(NOT EXISTS ${ONNXRUNTIME_DIR})
   MESSAGE(FATAL_ERROR "ONNXRUNTIME_DIR not found")
@@ -35,7 +38,7 @@ src/utils/ops.cpp
 
 add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_CPP_SOURCES})
 # add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS})
-target_link_libraries(${PROJECT_NAME} PUBLIC ${OpenCV_LIBS} ${ONNXRUNTIME_DIR}/lib/libonnxruntime.so)
+target_link_libraries(${PROJECT_NAME} PUBLIC ${OpenCV_LIBS} ${ONNXRUNTIME_DIR}/lib/libonnxruntime.so ${InferenceEngine_LIBRARIES})
 
 add_executable(${PROJECT_NAME}_test src/main.cpp)
-target_link_libraries(${PROJECT_NAME}_test ${PROJECT_NAME} ${OpenCV_LIBS})
+target_link_libraries(${PROJECT_NAME}_test ${PROJECT_NAME} ${OpenCV_LIBS} ${InferenceEngine_LIBRARIES})

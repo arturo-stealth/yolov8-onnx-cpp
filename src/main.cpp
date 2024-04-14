@@ -12,10 +12,12 @@
 
 // #include <utils/viz.h>
 
+#include <thread>
+
 int main()
 {
   std::string img_path = "../images/trailer.jpg";
-  const std::string& modelPath = "../models/trailer-cls.onnx";
+  const std::string& modelPath = "../models/best.onnx";
 
   const auto onnx_provider = yolov8_onnxruntime::OnnxProviders_t::OPENVINO; // "cpu";
   const std::string& onnx_logid = "yolov8_inference2";
@@ -35,22 +37,26 @@ int main()
   yolov8_onnxruntime::AutoBackendOnnx model(modelPath.c_str(), onnx_logid.c_str(), onnx_provider);
   std::vector<yolov8_onnxruntime::YoloResults> objs =
       model.predict_once(img, conf_threshold, iou_threshold, mask_threshold, conversion_code);
+  objs.clear();
+  objs = model.predict_once(img, conf_threshold, iou_threshold, mask_threshold, conversion_code);
+
   std::vector<cv::Scalar> colors =
       yolov8_onnxruntime::generateRandomColors(model.getNc(), model.getCh());
   std::unordered_map<int, std::string> names = model.getNames();
 
   // print classify results
-  std::string task = model.getTask();
-  if (task == yolov8_onnxruntime::YoloTasks::CLASSIFY)
-  {
-    for (const yolov8_onnxruntime::YoloResults& result : objs)
-    {
-      // set precision 2
-      std::cout << std::fixed << std::setprecision(2);
-      std::cout << "Class: " << names[result.class_idx] << " Confidence: " << result.conf
-                << std::endl;
-    }
-  }
+  // std::string task = model.getTask();
+  // if (task == yolov8_onnxruntime::YoloTasks::CLASSIFY)
+  // {
+  //   for (const yolov8_onnxruntime::YoloResults& result : objs)
+  //   {
+  //     // set precision 2
+  //     std::cout << "Class: " << names[result.class_idx] << " Confidence: " << result.conf
+  //               << std::endl;
+  //   }
+  // }
+
+  // sleep for 5 seconds
 
   // std::vector<std::vector<float>> keypointsVector;
   // for (const yolov8_onnxruntime::YoloResults& result : objs)

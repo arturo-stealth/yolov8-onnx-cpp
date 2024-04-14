@@ -58,10 +58,7 @@ void AutoBackendOnnx::loadMetaData()
     // parse it and convert to int iterable
     std::vector<int> imgsz = convertStringVectorToInts(parseVectorString(imgsz_iterator->second));
     // set it here:
-    if (imgsz_.empty())
-    {
-      imgsz_ = imgsz;
-    }
+    imgsz_ = imgsz;
   }
   else
   {
@@ -232,6 +229,7 @@ std::vector<YoloResults> AutoBackendOnnx::predict_once(cv::Mat& image,
   double postprocess_time = 0.0;
   Timer preprocess_timer = Timer(preprocess_time, verbose);
   float* blob = nullptr;
+
   std::vector<int64_t> inputTensorShape;
   std::pair<cv::Size, std::vector<float>> preprocess_data;
 
@@ -243,6 +241,8 @@ std::vector<YoloResults> AutoBackendOnnx::predict_once(cv::Mat& image,
   else
     std::tie(pp_sz, inputTensorValues) =
         preprocess_classify(image, blob, inputTensorShape, conversionCode, preprocess_timer);
+
+  delete blob;
 
   Ort::MemoryInfo memoryInfo = Ort::MemoryInfo::CreateCpu(OrtAllocatorType::OrtArenaAllocator,
                                                           OrtMemType::OrtMemTypeDefault);

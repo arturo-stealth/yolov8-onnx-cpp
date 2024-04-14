@@ -1,14 +1,16 @@
 #include "yolov8_onnxruntime/nn/onnx_model_base.h"
 
 #include <iostream>
-#include <onnxruntime_c_api.h>
-#include <onnxruntime_cxx_api.h>
+#include <onnxruntime/core/session/onnxruntime_c_api.h>
+#include <onnxruntime/core/session/onnxruntime_cxx_api.h>
 
 #include "yolov8_onnxruntime/constants.h"
 #include "yolov8_onnxruntime/utils/common.h"
 
 #include <algorithm>
 #include <thread>
+
+#include <openvino/openvino.hpp>
 
 namespace yolov8_onnxruntime
 {
@@ -36,9 +38,16 @@ OnnxModelBase::OnnxModelBase(const char* modelPath,
     modelPath_(modelPath)
 {
 
+  ov::Core core;
+  std::vector<std::string> available_devices = core.get_available_devices();
+  for (const auto& device : available_devices)
+  {
+    std::cout << "Available device: " << device << std::endl;
+  }
+
   // TODO: too bad passing `ORT_LOGGING_LEVEL_WARNING` by default - for some cases
   //       info level would make sense too
-  env = Ort::Env(ORT_LOGGING_LEVEL_WARNING, logid);
+  env = Ort::Env(ORT_LOGGING_LEVEL_VERBOSE, logid);
   Ort::SessionOptions sessionOptions = Ort::SessionOptions();
 
   std::vector<std::string> availableProviders = Ort::GetAvailableProviders();
@@ -50,7 +59,7 @@ OnnxModelBase::OnnxModelBase(const char* modelPath,
                                      availableProviders.end(),
                                      std::string("OpenVINOExecutionProvider"));
   OrtOpenVINOProviderOptions openvinoOption;
-  openvinoOption.device_type = "GPU_FP32";
+  openvinoOption.device_type = "GPU_FP16";
   openvinoOption.num_of_threads = std::thread::hardware_concurrency() - 1;
   openvinoOption.cache_dir = "/tmp/openvino_cache";
 
@@ -64,6 +73,7 @@ OnnxModelBase::OnnxModelBase(const char* modelPath,
     }
     else
     {
+      sessionOptions.SetGraphOptimizationLevel(ORT_ENABLE_ALL);
       std::cout << "Inference device: Cuda GPU" << std::endl;
       sessionOptions.AppendExecutionProvider_CUDA(cudaOption);
     }
