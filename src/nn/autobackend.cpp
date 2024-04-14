@@ -231,33 +231,30 @@ std::vector<YoloResults> AutoBackendOnnx::predict_once(cv::Mat& image,
   double inference_time = 0.0;
   double postprocess_time = 0.0;
   Timer preprocess_timer = Timer(preprocess_time, verbose);
-  // 1. preprocess
   float* blob = nullptr;
-  // double* blob = nullptr;
-  std::vector<Ort::Value> inputTensors;
-  if (conversionCode >= 0)
-  {
-    cv::cvtColor(image, image, conversionCode);
-  }
   std::vector<int64_t> inputTensorShape;
-  // TODO: for classify task preprocessed image will be different (!):
-  cv::Mat preprocessed_img;
-  cv::Size new_shape = cv::Size(getWidth(), getHeight());
-  const bool& scaleFill = false; // false
-  const bool& auto_ = false;     // true
-  letterbox(image, preprocessed_img, new_shape, cv::Scalar(), auto_, scaleFill, true, getStride());
-  fill_blob(preprocessed_img, blob, inputTensorShape);
-  int64_t inputTensorSize = vector_product(inputTensorShape);
-  std::vector<float> inputTensorValues(blob, blob + inputTensorSize);
+  std::pair<cv::Size, std::vector<float>> preprocess_data;
+
+  cv::Size pp_sz;
+  std::vector<float> inputTensorValues;
+  if (task_ != YoloTasks::CLASSIFY)
+    std::tie(pp_sz, inputTensorValues) =
+        preprocess(image, blob, inputTensorShape, conversionCode, preprocess_timer);
+
+  // TODO: implement preprocess_classify
+  // else
+  //   std::tie(pp_sz, inputTensorValues) =
+  //       preprocess_classify(image, blob, inputTensorShape, conversionCode, preprocess_timer);
 
   Ort::MemoryInfo memoryInfo = Ort::MemoryInfo::CreateCpu(OrtAllocatorType::OrtArenaAllocator,
                                                           OrtMemType::OrtMemTypeDefault);
-
+  std::vector<Ort::Value> inputTensors;
   inputTensors.push_back(Ort::Value::CreateTensor<float>(memoryInfo,
                                                          inputTensorValues.data(),
-                                                         inputTensorSize,
+                                                         vector_product(inputTensorShape),
                                                          inputTensorShape.data(),
                                                          inputTensorShape.size()));
+
   preprocess_timer.Stop();
   Timer inference_timer = Timer(inference_time, verbose);
   // 2. inference
@@ -341,18 +338,45 @@ std::vector<YoloResults> AutoBackendOnnx::predict_once(cv::Mat& image,
   if (verbose)
   {
     std::cout << std::fixed << std::setprecision(1);
-    std::cout << "image: " << preprocessed_img.rows << "x" << preprocessed_img.cols << " "
-              << results.size() << " objs, ";
+    std::cout << "image: " << pp_sz.height << "x" << pp_sz.width << " " << results.size()
+              << " objs, ";
     std::cout << (preprocess_time + inference_time + postprocess_time) * 1000.0 << "ms"
               << std::endl;
     std::cout << "Speed: " << (preprocess_time * 1000.0) << "ms preprocess, ";
     std::cout << (inference_time * 1000.0) << "ms inference, ";
     std::cout << (postprocess_time * 1000.0) << "ms postprocess per image ";
-    std::cout << "at shape (1, " << image.channels() << ", " << preprocessed_img.rows << ", "
-              << preprocessed_img.cols << ")" << std::endl;
+    std::cout << "at shape (1, " << image.channels() << ", " << pp_sz.height << ", " << pp_sz.width
+              << ")" << std::endl;
   }
 
   return results;
+}
+
+std::pair<cv::Size, std::vector<float>>
+AutoBackendOnnx::preprocess(cv::Mat& image,
+                            float*& blob,
+                            std::vector<int64_t>& inputTensorShape,
+                            int conversionCode,
+                            Timer& timer)
+{
+  if (conversionCode >= 0)
+  {
+    cv::cvtColor(image, image, conversionCode);
+  }
+
+  cv::Mat preprocessed_img;
+  cv::Size new_shape = cv::Size(getWidth(), getHeight());
+  const bool scaleFill = false; // false
+  const bool auto_ = false;     // false
+  letterbox(image, preprocessed_img, new_shape, cv::Scalar(), auto_, scaleFill, true, getStride());
+
+  fill_blob(preprocessed_img, blob, inputTensorShape);
+  int64_t inputTensorSize = vector_product(inputTensorShape);
+  std::vector<float> inputTensorValues(blob, blob + inputTensorSize);
+
+  timer.Stop(); // Stop the preprocessing timer after all operations are done
+
+  return {preprocessed_img.size(), inputTensorValues};
 }
 
 void AutoBackendOnnx::postprocess_masks(cv::Mat& output0,

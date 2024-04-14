@@ -89,6 +89,12 @@ public:
                                                 int conversionCode = -1,
                                                 bool verbose = true);
 
+  std::pair<cv::Size, std::vector<float>> preprocess(cv::Mat& image,
+                                                     float*& blob,
+                                                     std::vector<int64_t>& inputTensorShape,
+                                                     int conversionCode,
+                                                     Timer& timer);
+
   virtual void fill_blob(cv::Mat& image, float*& blob, std::vector<int64_t>& inputTensorShape);
   virtual void postprocess_masks(cv::Mat& output0,
                                  cv::Mat& output1,
