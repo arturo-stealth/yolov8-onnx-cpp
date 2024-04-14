@@ -17,7 +17,7 @@ int main()
   std::string img_path = "../images/trailer.jpg";
   const std::string& modelPath = "../models/trailer-cls.onnx";
 
-  const auto onnx_provider = yolov8_onnxruntime::OnnxProviders_t::CPU; // "cpu";
+  const auto onnx_provider = yolov8_onnxruntime::OnnxProviders_t::OPENVINO; // "cpu";
   const std::string& onnx_logid = "yolov8_inference2";
   float mask_threshold =
       0.5f; // in python it's 0.5 and you can see that at ultralytics/utils/ops.process_mask line
@@ -40,12 +40,16 @@ int main()
   std::unordered_map<int, std::string> names = model.getNames();
 
   // print classify results
-  for (const yolov8_onnxruntime::YoloResults& result : objs)
+  std::string task = model.getTask();
+  if (task == yolov8_onnxruntime::YoloTasks::CLASSIFY)
   {
-    // set precision 2
-    std::cout << std::fixed << std::setprecision(2);
-    std::cout << "Class: " << names[result.class_idx] << " Confidence: " << result.conf
-              << std::endl;
+    for (const yolov8_onnxruntime::YoloResults& result : objs)
+    {
+      // set precision 2
+      std::cout << std::fixed << std::setprecision(2);
+      std::cout << "Class: " << names[result.class_idx] << " Confidence: " << result.conf
+                << std::endl;
+    }
   }
 
   // std::vector<std::vector<float>> keypointsVector;
