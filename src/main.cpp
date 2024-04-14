@@ -50,17 +50,27 @@ int main()
       yolov8_onnxruntime::generateRandomColors(model.getNc(), model.getCh());
   std::unordered_map<int, std::string> names = model.getNames();
 
-  std::vector<std::vector<float>> keypointsVector;
-  for (const yolov8_onnxruntime::YoloResults& result : objs)
-  {
-    keypointsVector.push_back(result.keypoints);
-  }
+  // std::vector<std::vector<float>> keypointsVector;
+  // for (const yolov8_onnxruntime::YoloResults& result : objs)
+  // {
+  //   keypointsVector.push_back(result.keypoints);
+  // }
 
   cv::cvtColor(img, img, cv::COLOR_RGB2BGR);
-  cv::Size show_shape = img.size(); // cv::Size(1280, 720); // img.size()
-                                    //   plot_results(img, objs, colors, names, show_shape);
+  // cv::Size show_shape = img.size(); // cv::Size(1280, 720); // img.size()
+  //                                   //   plot_results(img, objs, colors, names, show_shape);
+
+  cv::Mat img2_rg = img.clone();
   plot_masks(img, objs, colors, names);
+  int index = model.getClassIdx("trailer_open");
+  if (index == -1)
+  {
+    std::cerr << "Error: Class name not found in the map" << std::endl;
+    return -1;
+  }
+  plot_masks_rg(img2_rg, objs, index, 1.0);
   cv::imshow("img", img);
+  cv::imshow("img2_rg", img2_rg);
   cv::waitKey();
   return -1;
 }

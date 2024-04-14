@@ -10,6 +10,8 @@
 
 #include "yolov8_onnxruntime/types.h"
 
+#include <iostream>
+
 namespace yolov8_onnxruntime
 {
 
@@ -38,6 +40,14 @@ public:
   virtual const int& getHeight();
   virtual const cv::Size& getCvSize();
   virtual const std::string& getTask();
+
+  int getClassIdx(const std::string& className) const
+  {
+    for (const auto& [key, value] : names_)
+      if (value == className)
+        return key;
+    return -1;
+  }
 
   std::vector<std::vector<std::vector<cv::Point>>>
   getBoundaryPoints(const std::vector<YoloResults>& objs) const;
