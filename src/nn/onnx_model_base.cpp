@@ -10,7 +10,6 @@
 #include <algorithm>
 #include <thread>
 
-#include <openvino/openvino.hpp>
 
 namespace yolov8_onnxruntime
 {
@@ -38,16 +37,16 @@ OnnxModelBase::OnnxModelBase(const char* modelPath,
     modelPath_(modelPath)
 {
 
-  ov::Core core;
-  std::vector<std::string> available_devices = core.get_available_devices();
-  for (const auto& device : available_devices)
-  {
-    std::cout << "Available device: " << device << std::endl;
-  }
+  // ov::Core core;
+  // std::vector<std::string> available_devices = core.get_available_devices();
+  // for (const auto& device : available_devices)
+  // {
+  //   std::cout << "Available device: " << device << std::endl;
+  // }
 
   // TODO: too bad passing `ORT_LOGGING_LEVEL_WARNING` by default - for some cases
   //       info level would make sense too
-  env = Ort::Env(ORT_LOGGING_LEVEL_VERBOSE, logid);
+  env = Ort::Env(ORT_LOGGING_LEVEL_WARNING, logid);
   Ort::SessionOptions sessionOptions = Ort::SessionOptions();
 
   std::vector<std::string> availableProviders = Ort::GetAvailableProviders();
