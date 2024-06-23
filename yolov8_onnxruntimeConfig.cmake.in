@@ -1,0 +1,8 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+find_dependency(OpenCV REQUIRED)
+find_dependency(OpenVINO REQUIRED)
+
+# Note: The targets file inclusion is commented out
+# include("${CMAKE_CURRENT_LIST_DIR}/yolov8_onnxruntimeTargets.cmake")
