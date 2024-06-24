@@ -58,7 +58,7 @@ OnnxModelBase::OnnxModelBase(const char* modelPath,
                                      availableProviders.end(),
                                      std::string("OpenVINOExecutionProvider"));
   OrtOpenVINOProviderOptions openvinoOption;
-  openvinoOption.device_type = "GPU_FP16";
+  openvinoOption.device_type = "CPU";
   openvinoOption.num_of_threads = std::thread::hardware_concurrency() - 1;
   openvinoOption.cache_dir = "/tmp/openvino_cache";
 
@@ -88,6 +88,7 @@ OnnxModelBase::OnnxModelBase(const char* modelPath,
     }
     else
     {
+      std::cout << "Inference device: OpenVINO" << std::endl;
       sessionOptions.SetGraphOptimizationLevel(ORT_DISABLE_ALL);
       // std::cout << "Inference device: OpenVINO" << std::endl;
       sessionOptions.AppendExecutionProvider_OpenVINO(openvinoOption);
