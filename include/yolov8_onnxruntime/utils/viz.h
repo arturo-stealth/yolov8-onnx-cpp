@@ -169,6 +169,42 @@ plot_masks_rg(cv::Mat img, std::vector<YoloResults>& result, int desired_label, 
   // cv::waitKey();
 }
 
+inline void plot_masks_g_norm(cv::Mat img,
+                              std::vector<YoloResults>& result,
+                              int desired_label,
+                              double alpha = 0.6)
+{
+  // Create a copy of the image to work on
+  cv::Mat mask = img.clone();
+
+  // Set all pixels of the mask to red
+  // mask.setTo(cv::Scalar(0, 0, 255)); // Red color in BGR
+
+  for (int i = 0; i < result.size(); i++)
+  {
+    // Check if the class index matches the desired label
+    if (result[i].class_idx != desired_label)
+    {
+      continue;
+    }
+    if (result[i].mask.rows && result[i].mask.cols > 0)
+    {
+      // Set the mask area specified by bbox to green only where mask is true
+      mask(result[i].bbox).setTo(cv::Scalar(0, 255, 0), result[i].mask); // Green color in BGR
+    }
+  }
+
+  // Combine the original image with the mask using a blend
+  cv::addWeighted(img, 1 - alpha, mask, alpha, 0, img); // Blending the original and the mask
+
+  // Optional: Resize the image to its original size (if needed)
+  resize(img, img, img.size());
+
+  // Optional: Display the image (uncomment these lines if needed in your application)
+  // imshow("Segmentation Mask Output", img);
+  // cv::waitKey();
+}
+
 // void plot_keypoints(cv::Mat& image, const std::vector<std::vector<float>>& keypoints, const
 // cv::Size& shape) {
 inline void
