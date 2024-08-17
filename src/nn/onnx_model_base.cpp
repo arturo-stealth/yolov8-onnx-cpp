@@ -10,7 +10,6 @@
 #include <algorithm>
 #include <thread>
 
-
 namespace yolov8_onnxruntime
 {
 
@@ -98,6 +97,7 @@ OnnxModelBase::OnnxModelBase(const char* modelPath,
   else if (provider == OnnxProviders_t::CPU)
   { // strcmp(provider, OnnxProviders::CPU.c_str()) == true) (providerStr == "cpu") {
     // "cpu" by default
+    sessionOptions.SetGraphOptimizationLevel(ORT_ENABLE_ALL);
   }
   else
   {
